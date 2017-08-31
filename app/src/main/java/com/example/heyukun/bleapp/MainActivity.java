@@ -2,20 +2,17 @@ package com.example.heyukun.bleapp;
 
 import android.Manifest;
 import android.bluetooth.BluetoothGatt;
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattDescriptor;
-import android.bluetooth.BluetoothGattService;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -23,11 +20,11 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.clj.fastble.BleManager;
-import com.clj.fastble.conn.BleGattCallback;
 import com.clj.fastble.data.ScanResult;
 import com.clj.fastble.exception.BleException;
-import com.clj.fastble.scan.ListScanCallback;
-import com.clj.fastble.utils.HexUtil;
+import com.example.heyukun.bleapp.ble.MyBleManager;
+import com.example.heyukun.bleapp.ble.callback.ConnectCallBack;
+import com.example.heyukun.bleapp.ble.callback.ScanCallBack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initWidgets();
         openScanDevice();
+        //android 6.0 + 需要打开GPS定位才可进行蓝牙搜索及后续操作
         initLoc();
         if(!isLocationEnable(this)){
             setLocationService();
@@ -104,12 +102,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    //打开并扫描蓝牙
     private void openScanDevice() {
-        bleManager= MyApp.getBle();
-
-        bleManager.enableBluetooth();
-
-        scanDevice(bleManager);
+        MyBleManager.get().openBle();
+        scanDevice();
     }
 
     private void initWidgets() {
@@ -121,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.btn_search).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                scanDevice(bleManager);
+                scanDevice();
             }
         });
 
@@ -154,8 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void connect(final ScanResult scanResult){
-        bleManager.connectDevice(scanResult, true, new BleGattCallback() {
-
+        MyBleManager.get().connectBle(scanResult, new ConnectCallBack() {
             @Override
             public void onConnecting(BluetoothGatt gatt, int status) {
                 Log.d(TAG,"onConnecting");
@@ -163,62 +158,39 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onConnectError(BleException exception) {
-                Log.d(TAG,"onConnectError`");
+                Log.d(TAG,"onConnectError`-"+exception.getDescription());
             }
 
             @Override
             public void onConnectSuccess(BluetoothGatt gatt, int status) {
-//                                        if(bleManager.isInScanning()) {
-//                                            bleManager.cancelScan();
-//                                        }
-
+                Log.d(TAG,"onConnectSuccess`");
             }
 
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                for(BluetoothGattService bluetoothGattService:gatt.getServices()) {
-                    Log.d(TAG, "onServicesDiscovered`" + bluetoothGattService.getUuid());
-                    List<BluetoothGattCharacteristic> bgcs = bluetoothGattService.getCharacteristics();
-                    for(BluetoothGattCharacteristic bg : bgcs){
-                        Log.d(TAG, "-------[BluetoothGattCharacteristic]:uuid-" + bg.getUuid());
-                        Log.d(TAG, "-------[BluetoothGattCharacteristic]:Permissions-" + bg.getPermissions());
-                        Log.d(TAG, "-------[BluetoothGattCharacteristic]:InstanceId-" + bg.getInstanceId());
-                        Log.d(TAG, "-------[BluetoothGattCharacteristic]:Properties-" + bg.getProperties());
-                        List<BluetoothGattDescriptor> bgds =  bg.getDescriptors();
-                        for(BluetoothGattDescriptor bgd : bgds){
-                            Log.d(TAG, "===========[BluetoothGattDescriptor]:Properties-Permissions" + bgd.getPermissions());
-                            Log.d(TAG, "===========[BluetoothGattDescriptor]:Properties-UUID" + bgd.getUuid());
-                            if(bgd.getValue()!=null)
-                            Log.d(TAG, "===========[BluetoothGattDescriptor]:Properties-Value" + HexUtil.encodeHexStr(bgd.getValue()));
-                        }
-                    }
-                }
-
-
+                Log.d(TAG,"onServicesDiscovered`");
                 startActivity(new Intent(MainActivity.this,DataRoadActivity.class));
-                Log.d(TAG,"onConnectSuccess`");
             }
 
             @Override
             public void onDisConnected(BluetoothGatt gatt, int status, BleException exception) {
                 Log.d(TAG,"onDisConnected`"+exception.getDescription());
-                connectCount--;
-                if(connectCount > 0){
-                    connect(scanResult);
-                }
+//                connectCount--;
+//                if(connectCount > 0){
+//                    connect(scanResult);
+//                }
             }
-
         });
     }
 
 
-
-    private void scanDevice(final BleManager bleManager){
+    //扫面蓝牙设备
+    private void scanDevice(){
         if(mScanresults !=null && mScanresults.size()>0){
             mScanresults.clear();
         }
 
-        bleManager.scanDevice(new ListScanCallback(3000) {
+        MyBleManager.get().scanDevice(new ScanCallBack() {
             @Override
             public void onScanning(ScanResult result) {
 
@@ -226,31 +198,29 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onScanComplete(ScanResult[] results) {
-               if(mScanresults == null){
-                   return;
-               }
-               for(ScanResult sc : results){
-                   if(!mScanresults.contains(sc)){
-                       mScanresults.add(sc);
-                   }
-               }
-
-               runOnUiThread(new Runnable() {
-                   @Override
-                   public void run() {
-                       bleManager.cancelScan();
-                       mScanAdapter.notifyDataSetChanged();
-                   }
-               });
-
+                if(mScanresults == null){
+                    return;
+                }
+                for(ScanResult sc : results){
+                    if(!mScanresults.contains(sc)){
+                        mScanresults.add(sc);
+                    }
+                }
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mScanAdapter.notifyDataSetChanged();
+                    }
+                });
             }
         });
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-//        bleManager.disableBluetooth();
+        MyBleManager.get().closeBle();
     }
 
 

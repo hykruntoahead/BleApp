@@ -6,14 +6,64 @@
     <ListView
         android:id="@+id/lv_rev"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="160dp"
         android:layout_marginTop="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="120dp"
         android:background="@drawable/rev_shape">
 
     </ListView>
+
+    <RadioGroup
+        android:id="@+id/rg"
+        android:layout_below="@+id/lv_rev"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp">
+        <RadioButton
+            android:id="@+id/rb_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="获取高度"/>
+        <RadioButton
+            android:id="@+id/rb_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="自学习"/>
+        <RadioButton
+            android:id="@+id/rb_3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="复位"/>
+        <RadioButton
+            android:id="@+id/rb_4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="上键"/>
+        <RadioButton
+            android:id="@+id/rb_5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="上键弹起"/>
+        <RadioButton
+            android:id="@+id/rb_6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下键"/>
+        <RadioButton
+            android:id="@+id/rb_7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下键弹起"/>
+        <RadioButton
+            android:id="@+id/rb_8"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="停止"/>
+
+    </RadioGroup>
+
+
 
     <EditText
         android:id="@+id/et_send"
@@ -25,7 +75,7 @@
         android:id="@+id/btn_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="发送数据"
+        android:text="指定高度"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"

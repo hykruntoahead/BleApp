@@ -1,5 +1,7 @@
 package com.example.heyukun.bleapp;
 
+import android.util.Log;
+
 /**
  * Created by heyukun on 2017/8/28.
  */
@@ -17,6 +19,82 @@ public class HexUtils {
             sb.append((strHex.length() == 1) ? "0" + strHex : strHex); // 每个字节由两个字符表示，位数不够，高位补0
         }
         return sb.toString().trim();
+    }
+
+
+    /**
+     *
+     *ascii码 ---> HexStr
+     *
+     */
+
+    public static String asciiStringToHex(String str){
+
+        char[] chars = str.toCharArray();
+
+        StringBuffer hex = new StringBuffer();
+        for(int i = 0; i < chars.length; i++){
+            hex.append(Integer.toHexString((int)chars[i]));
+        }
+
+        return hex.toString();
+    }
+
+
+    /**
+     *
+     *HexStr ---> ascii码
+     *
+     */
+
+    public static String hexToAscii(String s) {
+        byte[] baKeyword = new byte[s.length() / 2];
+        for (int i = 0; i < baKeyword.length; i++) {
+            try {
+                baKeyword[i] = (byte) (0xff & Integer.parseInt(s.substring(
+                        i * 2, i * 2 + 2), 16));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            s = new String(baKeyword, "ASCII");
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        return s;
+    }
+
+    /**
+     * 校验码计算并拼接
+     */
+
+    public static String generateCheckCode(String str){
+
+        String ascStr = hexToAscii(asciiStringToHex(str));
+
+        int cs = 0 ;
+        char[] chars = ascStr.toCharArray();
+        for(char c:chars){
+            cs = cs + c;
+        }
+        return asciiStringToHex(str)+asciiStringToHex(Integer.toHexString(cs % 256).toUpperCase());
+
+    }
+
+
+    public static String toHexData(int num){
+        String hex = Integer.toHexString(num).toUpperCase();
+
+        char[] chars = hex.toCharArray();
+        if(chars.length==1){
+            hex = "000"+hex;
+        }else if (chars.length == 2){
+            hex = "00"+hex;
+        }else if (chars.length ==3){
+            hex = "0"+hex;
+        }
+        return hex;
     }
 
     /**
@@ -65,6 +143,8 @@ public class HexUtils {
     public static byte HexToByte(String inHex) {
         return (byte) Integer.parseInt(inHex, 16);
     }
+
+
 
     /**
      * 字节数组转为普通字符串（ASCII对应的字符）

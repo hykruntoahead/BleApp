@@ -3,6 +3,7 @@ package com.example.heyukun.bleapp;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -11,14 +12,20 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioGroup;
+import android.widget.Toast;
 
-import com.clj.fastble.BleManager;
-import com.clj.fastble.conn.BleCharacterCallback;
 import com.clj.fastble.exception.BleException;
 import com.clj.fastble.utils.HexUtil;
+import com.example.heyukun.bleapp.ble.BleCmdUtil;
+import com.example.heyukun.bleapp.ble.MyBleManager;
+import com.example.heyukun.bleapp.ble.callback.RevCallBack;
+import com.example.heyukun.bleapp.ble.callback.SendCallBack;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.example.heyukun.bleapp.ble.MyBleManager.REV_SUCCESS_FLAG;
 
 /**
  * Created by heyukun on 2017/8/28.
@@ -43,7 +50,8 @@ public class DataRoadActivity extends FragmentActivity {
     private Button mSendBtn;
     private List<String> mList;
     private ArrayAdapter<String> mArrAdapter;
-    private BleManager mBleManager;
+    private RadioGroup mRadioGroup;
+
     private int readCount = 3;
 
     private Handler handler = new Handler();
@@ -51,8 +59,7 @@ public class DataRoadActivity extends FragmentActivity {
         @Override
         public void run() {
             notifyData();
-//            readData();
-            handler.postDelayed(this,1000);
+//            handler.postDelayed(this,1000);
         }
     };
 //
@@ -61,25 +68,57 @@ public class DataRoadActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_data_road);
         initWidgets();
-        mBleManager = MyApp.getBle();
-        handler.postDelayed(mRun,1000);
     }
+
 
 
 
     private void initWidgets() {
         mRecLv = (ListView) findViewById(R.id.lv_rev);
-        mSendBtn = (Button) findViewById(R.id.btn_send);
         mSendEt = (EditText) findViewById(R.id.et_send);
+        mSendBtn = (Button) findViewById(R.id.btn_send);
+        mRadioGroup = (RadioGroup) findViewById(R.id.rg);
         mList = new ArrayList<>();
         mArrAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,mList);
         mRecLv.setAdapter(mArrAdapter);
         mSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            writeToDevice(mSendEt.getText().toString());
+            writeHeightTo(Integer.parseInt(mSendEt.getText().toString()));
             }
         });
+        mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
+                switch (checkedId){
+                    case R.id.rb_1:
+                        writeCmdTo(BleCmdUtil.getReadHeightCmd());
+                        break;
+                    case R.id.rb_2:
+                        writeCmdTo(BleCmdUtil.getAutoLearnCmd());
+                        break;
+                    case R.id.rb_3:
+                        writeCmdTo(BleCmdUtil.getResetCmd());
+                        break;
+                    case R.id.rb_4:
+                        writeCmdTo(BleCmdUtil.getUpCmd());
+                        break;
+                    case R.id.rb_5:
+                        writeCmdTo(BleCmdUtil.getUpCancelCmd());
+                        break;
+                    case R.id.rb_6:
+                        writeCmdTo(BleCmdUtil.getDownCmd());
+                        break;
+                    case R.id.rb_7:
+                        writeCmdTo(BleCmdUtil.getDownCancelCmd());
+                        break;
+                    case R.id.rb_8:
+                        writeCmdTo(BleCmdUtil.getStopCmd());
+                        break;
+                }
+            }
+        });
+
     }
 
     @Override
@@ -87,94 +126,105 @@ public class DataRoadActivity extends FragmentActivity {
         super.onStart();
     }
 
-    private void writeToDevice(String sendStr){
-        mList.add("[Send-]"+sendStr);
+    private void writeHeightTo(int height){
+        mList.add("[Send-]"+height);
         mArrAdapter.notifyDataSetChanged();
         mRecLv.smoothScrollToPosition(mList.size()-1);
-        handler.removeCallbacks(mRun);
-        mBleManager.writeDevice(
-                UUID_SERVICE,
-                UUID_WRITE,
-                HexUtils.HexToByteArr(sendStr),
-                new BleCharacterCallback() {
+        MyBleManager.get().sendVariableToDevice(height, new SendCallBack() {
+            @Override
+            public void onSuccess(BluetoothGattCharacteristic characteristic) {
+                mList.add("[Send-Success]-Hex-"+HexUtil.encodeHexStr(characteristic.getValue()));
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onSuccess(BluetoothGattCharacteristic characteristic) {
-                        mList.add("[Send-Success]-Hex-"+HexUtil.encodeHexStr(characteristic.getValue()));
-//                         mList.add("[Send-Success]-Ascii-"+HexUtils.bytetoString(characteristic.getValue()));
-                           mArrAdapter.notifyDataSetChanged();
-                        handler.postDelayed(mRun,100);
-                    }
-
-                    @Override
-                    public void onFailure(BleException exception) {
-                        mList.add("[Send-Failure]"+exception.getDescription());
+                    public void run() {
                         mArrAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onInitiatedResult(boolean result) {
-
+                        notifyData();
                     }
                 });
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+                mList.add("[Send-Failure]"+exception.getDescription());
+                mArrAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+
+    private void writeCmdTo(String cmdStr){
+        mList.add("[Send-]"+cmdStr);
+        mArrAdapter.notifyDataSetChanged();
+        mRecLv.smoothScrollToPosition(mList.size()-1);
+        MyBleManager.get().sendFixedToDevice(cmdStr, new SendCallBack() {
+            @Override
+            public void onSuccess(BluetoothGattCharacteristic characteristic) {
+                mList.add("[Send-Success]-Hex-"+HexUtil.encodeHexStr(characteristic.getValue()));
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mArrAdapter.notifyDataSetChanged();
+                        notifyData();
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(BleException exception) {
+                mList.add("[Send-Failure]"+exception.getDescription());
+                mArrAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     private void notifyData(){
-        boolean ind = mBleManager.notify(
-                UUID_SERVICE,
-                UUID_NOTIFY,
-                new BleCharacterCallback() {
+        boolean ind = MyBleManager.get().revFromDevice(new RevCallBack() {
+            @Override
+            public void onCtlSuccess(int heightOrState) {
+                if(heightOrState == REV_SUCCESS_FLAG){
+                    mList.add("[Notify-Success]-OK!OK!");
+                }else {
+                    mList.add("[Notify-Success]-OK!-height"+heightOrState);
+                }
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onSuccess(BluetoothGattCharacteristic characteristic) {
-                        Log.d("Ble-", "-------[Notify-onSuccess]-" + characteristic.getStringValue(0));
-                        mList.add("[Notify-Success]"+characteristic.getValue());
+                    public void run() {
+                        Toast.makeText(getApplicationContext(),"操作成功",Toast.LENGTH_SHORT).show();
                         mArrAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onFailure(BleException exception) {
-                        Log.d("Ble-", "-------[Notify-onFailure]-" + exception.getDescription());
-                        mList.add("[Notify-Failure]"+exception.getDescription());
-                        mArrAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onInitiatedResult(boolean result) {
-                        Log.d("Ble-", "-------[Notify-onInitiatedResult]-" + result);
                     }
                 });
-        Log.d("Ble-", "-------[Indicate]-" + ind);
-    }
+            }
 
-    private void readData(){
-       boolean read = mBleManager.readDevice(
-                UUID_SERVICE,
-                UUID_READ,
-                new BleCharacterCallback() {
+            @Override
+            public void onCtlFailure(String errorValue) {
+                mList.add("[Notify-onCtlFailure]"+errorValue);
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void onSuccess(BluetoothGattCharacteristic characteristic) {
-                        mList.add("[Read-Success]-Hex:"+HexUtil.encodeHexStr(characteristic.getValue()));
-                        mList.add("[Read-Success]-Hex-Size:"+characteristic.getValue().length);
+                    public void run() {
                         mArrAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onFailure(BleException exception) {
-                        mList.add("[Read-Failure]"+exception.getDescription());
-                        mArrAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onInitiatedResult(boolean result) {
                     }
                 });
-            Log.d("Ble-", "-------[Indicate]-" + read);
+            }
 
+
+            @Override
+            public void onFailure(BleException exception) {
+                mList.add("[Notify-Failure]"+exception.getDescription());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mArrAdapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
+        Log.d("Ble-","notify-"+ind);
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        mBleManager.stopNotify(UUID_SERVICE,UUID_NOTIFY);
-        mBleManager.closeBluetoothGatt();
+    protected void onDestroy() {
+        super.onDestroy();
+        MyBleManager.get().stopRev();
+        MyBleManager.get().disconnectGatt();
     }
 }

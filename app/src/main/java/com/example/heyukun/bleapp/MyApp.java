@@ -11,15 +11,15 @@ import com.clj.fastble.BleManager;
 
 public class MyApp extends Application{
     @SuppressLint("StaticFieldLeak")
-    private static BleManager sBleManager;
+    private static MyApp mInstance;
     @Override
     public void onCreate() {
         super.onCreate();
-        sBleManager = new BleManager(this);
+        mInstance = this;
     }
 
-    public static BleManager getBle(){
-        return sBleManager;
+    public static MyApp getAppInstance(){
+        return mInstance;
     }
 
 }
