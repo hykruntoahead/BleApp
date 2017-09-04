@@ -230,7 +230,7 @@ public class MyBleManager {
                         }else if(retCmd.length() == 26){
 
                             String hex =retCmd.substring(4,retCmd.length() - 6);
-//                            String hex = "3030343030303030";
+//                            String hex = "3030343830303030";
 
                             String errorData = HexUtils.hexToAscii(hex);
 
