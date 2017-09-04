@@ -64,6 +64,31 @@
     </RadioGroup>
 
 
+   <EditText
+       android:id="@+id/et_set_height"
+       android:layout_width="100dp"
+       android:layout_height="wrap_content"
+       android:layout_below="@+id/rg"
+       android:layout_marginTop="8dp"
+       android:layout_marginLeft="8dp"/>
+    <Button
+        android:id="@+id/btn_set_height"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/rg"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="8dp"
+        android:text="设置高度"
+        android:layout_toRightOf="@+id/et_set_height"/>
+    <TextView
+        android:id="@+id/tv_set_height"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/lv_rev"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:textSize="28sp"
+        android:layout_alignParentEnd="true"/>
 
     <EditText
         android:id="@+id/et_send"
@@ -75,7 +100,7 @@
         android:id="@+id/btn_send"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="指定高度"
+        android:text="发送（测报警）"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"

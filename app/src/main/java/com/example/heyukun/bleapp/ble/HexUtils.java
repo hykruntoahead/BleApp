@@ -1,12 +1,24 @@
-package com.example.heyukun.bleapp;
-
-import android.util.Log;
+package com.example.heyukun.bleapp.ble;
 
 /**
  * Created by heyukun on 2017/8/28.
  */
 
 public class HexUtils {
+
+    public static String getBit(byte by){
+        StringBuffer sb = new StringBuffer();
+        sb.append((by>>7)&0x1)
+                .append((by>>6)&0x1)
+                .append((by>>5)&0x1)
+                .append((by>>4)&0x1)
+                .append((by>>3)&0x1)
+                .append((by>>2)&0x1)
+                .append((by>>1)&0x1)
+                .append((by>>0)&0x1);
+        return sb.toString();
+    }
+
 
     /**
      * 字节流转成十六进制表示
@@ -21,6 +33,19 @@ public class HexUtils {
         return sb.toString().trim();
     }
 
+    /**
+     * 获取字节（有8bit）所在位（第num bit处）的数值
+     * 为0还是1
+     * 为1时返回true
+     * @param by 字节
+     * @param index 位置
+     * @return
+     */
+    public static boolean getBitOnIndexIsTrue(byte by,int index){
+        StringBuffer sb = new StringBuffer();
+        sb.append((by>>index)&0x1);
+        return sb.toString().equals("1");
+    }
 
     /**
      *

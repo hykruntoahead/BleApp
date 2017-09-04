@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.clj.fastble.exception.BleException;
@@ -21,9 +22,12 @@ import com.example.heyukun.bleapp.ble.BleCmdUtil;
 import com.example.heyukun.bleapp.ble.MyBleManager;
 import com.example.heyukun.bleapp.ble.callback.RevCallBack;
 import com.example.heyukun.bleapp.ble.callback.SendCallBack;
+import com.example.heyukun.bleapp.ble.e.WarnEntity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import me.drakeet.materialdialog.MaterialDialog;
 
 import static com.example.heyukun.bleapp.ble.MyBleManager.REV_SUCCESS_FLAG;
 
@@ -32,27 +36,16 @@ import static com.example.heyukun.bleapp.ble.MyBleManager.REV_SUCCESS_FLAG;
  */
 
 public class DataRoadActivity extends FragmentActivity {
-    private static final String UUID_SERVICE = "0000ffe0-0000-1000-8000-00805f9b34fb";
-
-//    private static final String UUID_NOTIFY_SERVICE = "000001801-0000-1000-8000-00805f9b34fb";
-
-    private static final String UUID_INDICATE = "0000000-0000-0000-8000-00805f9b0000";
-    private static final String UUID_NOTIFY = "0000ffe1-0000-1000-8000-00805f9b34fb";
-
-    private static final String UUID_READ = "0000ffe1-0000-1000-8000-00805f9b34fb";
-
-    private static final String UUID_WRITE = "0000ffe1-0000-1000-8000-00805f9b34fb";
-
-    private static final String SAMPLE_WRITE_DATA = "1B5352303130303031433705";                  // 要写入设备某一个character的指令
 
     private ListView mRecLv;
-    private EditText mSendEt;
+    private EditText mSendEt,mSetHeightEt;
     private Button mSendBtn;
+    private TextView mGetHeightTv;
     private List<String> mList;
     private ArrayAdapter<String> mArrAdapter;
     private RadioGroup mRadioGroup;
+    private MaterialDialog md;
 
-    private int readCount = 3;
 
     private Handler handler = new Handler();
     private Runnable mRun = new Runnable() {
@@ -78,13 +71,15 @@ public class DataRoadActivity extends FragmentActivity {
         mSendEt = (EditText) findViewById(R.id.et_send);
         mSendBtn = (Button) findViewById(R.id.btn_send);
         mRadioGroup = (RadioGroup) findViewById(R.id.rg);
+        mSetHeightEt = (EditText) findViewById(R.id.et_set_height);
+        mGetHeightTv = (TextView) findViewById(R.id.tv_set_height);
         mList = new ArrayList<>();
         mArrAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,mList);
         mRecLv.setAdapter(mArrAdapter);
         mSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            writeHeightTo(Integer.parseInt(mSendEt.getText().toString()));
+                writeCmdTo(mSendEt.getText().toString());
             }
         });
         mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -119,7 +114,15 @@ public class DataRoadActivity extends FragmentActivity {
             }
         });
 
+        findViewById(R.id.btn_set_height).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                writeHeightTo(Integer.parseInt(mSetHeightEt.getText().toString()));
+            }
+        });
+
     }
+
 
     @Override
     protected void onStart() {
@@ -180,11 +183,17 @@ public class DataRoadActivity extends FragmentActivity {
     private void notifyData(){
         boolean ind = MyBleManager.get().revFromDevice(new RevCallBack() {
             @Override
-            public void onCtlSuccess(int heightOrState) {
+            public void onCtlSuccess(final int heightOrState) {
                 if(heightOrState == REV_SUCCESS_FLAG){
-                    mList.add("[Notify-Success]-OK!OK!");
+                    mList.add("[Notify-Success]-操作成功！");
                 }else {
-                    mList.add("[Notify-Success]-OK!-height"+heightOrState);
+                    mList.add("[Notify-Success]-OK!-height="+heightOrState);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mGetHeightTv.setText(heightOrState+"CM");
+                        }
+                    });
                 }
                 runOnUiThread(new Runnable() {
                     @Override
@@ -206,6 +215,25 @@ public class DataRoadActivity extends FragmentActivity {
                 });
             }
 
+            @Override
+            public void onCtlWarning(final WarnEntity warn) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                       md =  new MaterialDialog(DataRoadActivity.this)
+                                .setTitle(warn.getName())
+                                .setMessage("提示："+warn.getPrompt()+"\r\n\r\n解决："+warn.getSolution())
+                                .setPositiveButton("确定", new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        md.dismiss();
+                                    }
+                                });
+                        md.show();
+                    }
+                });
+            }
+
 
             @Override
             public void onFailure(BleException exception) {
@@ -219,6 +247,14 @@ public class DataRoadActivity extends FragmentActivity {
             }
         });
         Log.d("Ble-","notify-"+ind);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(md!=null){
+             md.dismiss();
+        }
     }
 
     @Override

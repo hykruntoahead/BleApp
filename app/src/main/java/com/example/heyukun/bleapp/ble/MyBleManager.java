@@ -11,12 +11,14 @@ import com.clj.fastble.data.ScanResult;
 import com.clj.fastble.exception.BleException;
 import com.clj.fastble.scan.ListScanCallback;
 import com.clj.fastble.utils.HexUtil;
-import com.example.heyukun.bleapp.HexUtils;
 import com.example.heyukun.bleapp.MyApp;
 import com.example.heyukun.bleapp.ble.callback.ConnectCallBack;
 import com.example.heyukun.bleapp.ble.callback.RevCallBack;
 import com.example.heyukun.bleapp.ble.callback.ScanCallBack;
 import com.example.heyukun.bleapp.ble.callback.SendCallBack;
+import com.example.heyukun.bleapp.ble.e.WarnEntity;
+
+import java.util.Arrays;
 
 /**
  * Created by heyukun on 2017/8/31.
@@ -221,10 +223,29 @@ public class MyBleManager {
 
                 if (retCmd.startsWith("1b") && retCmd.endsWith("05")) {
                     if (retCmd.startsWith("1b41")) {
-                        if (retCmd.contains("3431")) {
+                        if (retCmd.contains("1b41343105")) {
                             callBack.onCtlSuccess(REV_SUCCESS_FLAG);
-                        } else {
+                        } else if(retCmd.length() == 18){
                             callBack.onCtlSuccess(BleCmdUtil.getReturnHeight(retCmd));
+                        }else if(retCmd.length() == 26){
+
+                            String hex =retCmd.substring(4,retCmd.length() - 6);
+//                            String hex = "3030343030303030";
+
+                            String errorData = HexUtils.hexToAscii(hex);
+
+                            if(errorData.equals("00000000")){
+                                callBack.onCtlSuccess(REV_SUCCESS_FLAG);
+                            }else {
+                                byte[] bytes = HexUtil.hexStringToBytes(errorData);
+                                for(int i=0;i<bytes.length;i++){
+                                    Log.d("Ble-", "-------[Notify-onSuccess]:byte["+i+"]="+HexUtils.getBit(bytes[i]));
+                                }
+                                WarnEntity warn = new WarnEntity(getWarnCode(bytes));
+                                callBack.onCtlWarning(warn);
+                            }
+                        }else {
+                            callBack.onCtlFailure(retCmd);
                         }
                     } else {
                         callBack.onCtlFailure(retCmd);
@@ -242,6 +263,27 @@ public class MyBleManager {
 
             }
         });
+    }
+
+
+
+    private int getWarnCode(byte[] bys){
+        if(HexUtils.getBitOnIndexIsTrue(bys[3],0)){
+            return BleErrorCode.WARN_POWER_OVER_VOLTAGE;
+        }else if(HexUtils.getBitOnIndexIsTrue(bys[3],1)){
+            return BleErrorCode.WARN_POWER_UNDER_VOLTAGE;
+        }else if(HexUtils.getBitOnIndexIsTrue(bys[3],6)){
+            return BleErrorCode.WARN_OVER_LOAD;
+        }else if(HexUtils.getBitOnIndexIsTrue(bys[2],3)){
+            return BleErrorCode.WARN_SUPER_HEAT;
+        }else if(HexUtils.getBitOnIndexIsTrue(bys[1],0)){
+            return BleErrorCode.WARN_COLLISION;
+        }else if(HexUtils.getBitOnIndexIsTrue(bys[1],1)){
+            return BleErrorCode.WARN_STEP_OUT;
+        }else if(HexUtils.getBitOnIndexIsTrue(bys[1],6)){
+            return BleErrorCode.WARN_NO_HOLZER;
+        }
+        return BleErrorCode.WARN_UN_KNOW;
     }
 
     /**

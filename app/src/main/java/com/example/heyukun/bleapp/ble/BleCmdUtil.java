@@ -2,8 +2,6 @@ package com.example.heyukun.bleapp.ble;
 
 import android.util.Log;
 
-import com.example.heyukun.bleapp.HexUtils;
-
 /**
  * Created by heyukun on 2017/8/31.
  * 发送和返回的处理指令集
@@ -161,8 +159,8 @@ public class BleCmdUtil {
     }
 
 
-    public static int getReturnHeight(String RecStr){
-        String height = RecStr.substring(4, RecStr.length() - 6);
+    public static int getReturnHeight(String recStr){
+        String height = recStr.substring(4, recStr.length() - 6);
         String hex = HexUtils.hexToAscii(height);
         Log.d("Ble-","return-"+Integer.parseInt(hex,16));
         return Integer.parseInt(hex,16)/10;

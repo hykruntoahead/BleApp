@@ -1,3 +1,34 @@
 <resources>
     <string name="app_name">BleApp</string>
+
+
+    <!--以下为报警相关字符串-->
+    <!--名称-->
+    <string name="warn_name_POWER_OVER_VOLTAGE">输入电源过压</string>
+    <string name="warn_name_POWER_UNDER_VOLTAGE">输入电源欠压</string>
+    <string name="warn_name_OVER_LOAD">过载报警</string>
+    <string name="warn_name_SUPER_HEAT">过热报警</string>
+    <string name="warn_name_COLLISION">碰撞报警</string>
+    <string name="warn_name_STEP_OUT">失步报警</string>
+    <string name="warn_name_NO_HOLZER">无霍尔报警</string>
+    <string name="warn_name_UN_KNOW">未知错误</string>
+    <!--提示-->
+    <string name="warn_prompt_POWER_OVER_VOLTAGE">检测到系统输入主电源电压过高，系统无法正常工作</string>
+    <string name="warn_prompt_POWER_UNDER_VOLTAGE">检测到系统输入主电源电压过低，系统无法正常工作</string>
+    <string name="warn_prompt_OVER_LOAD">系统负载超过最大载荷，系统无法正常工作</string>
+    <string name="warn_prompt_SUPER_HEAT">系统或者电机过热，系统无法正常工作</string>
+    <string name="warn_prompt_COLLISION">系统上升或下降遇到障碍物，已自动回退</string>
+    <string name="warn_prompt_STEP_OUT">系统各电机运行不同步，系统无法正常工作</string>
+    <string name="warn_prompt_NO_HOLZER">电机 未连接或者未检测到霍尔信号，系统无法正常工作</string>
+    <string name="warn_prompt_UN_KNOW">系统未知错误</string>
+    <!--解决方案-->
+    <string name="warn_solution_POWER_OVER_VOLTAGE">请确认电网供电是否正常，如确认正常请重新 给系统上电，如果报警未解除，请联系您的供应商</string>
+    <string name="warn_solution_POWER_UNDER_VOLTAGE">请确认电网供电是否正常，如确认正常请重新 给系统上电，报警如果未解除，请联系您的供应商</string>
+    <string name="warn_solution_OVER_LOAD">请减少系统当前载荷至最大允许载荷范围内， 通过重新上电或者复位解除此报警</string>
+    <string name="warn_solution_SUPER_HEAT">系统过热，请按照使用说明让系统休息，达到 时间后报警自动解除</string>
+    <string name="warn_solution_COLLISION">无需任何操作，系统自动回退后报警将解除</string>
+    <string name="warn_solution_STEP_OUT">通过复位操作解除此报警</string>
+    <string name="warn_solution_NO_HOLZER">检查电机 是否连接正常，如果正常，通过复位操作能解除此报警，如果报警未解除，请联系您的供应商</string>
+    <string name="warn_solution_UN_KNOW">通过复位操作能解除此报警，如果报警未解除，请联系您的供应商</string>
+
 </resources>
