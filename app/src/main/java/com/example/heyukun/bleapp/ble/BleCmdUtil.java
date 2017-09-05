@@ -26,6 +26,12 @@ public class BleCmdUtil {
      */
     private static final String ADDRESS_HEIGHT = "1030";// 桌子高度
 
+
+    private static final String MIN_HEIGHT = "0022";//基础高度
+
+    private static final String MAX_RANGE= "0023";//最大行程
+
+
     private static final String ADDRESS_RUN = "2010"; //运动控制
 
     private static final String ADDRESS_ROAD = "2002";// 行程校准
@@ -60,6 +66,10 @@ public class BleCmdUtil {
      */
     private static final String CODE_GET_HEIGHT = CMD_R+ADDRESS_HEIGHT+NUMBER_R;//获取高度
 
+    private static final String CODE_GET_MIN_HEIGHT = CMD_R+MIN_HEIGHT+NUMBER_R;//获取基础高度
+
+    private static final String CODE_GET_MAX_RANGE = CMD_R+MAX_RANGE+NUMBER_R;//获取最大行程
+
 
     private static final String CODE_AUTO_LEARN = CMD_W+ADDRESS_ROAD+NUMBER_R+DATA_AUTO;//自学习
     private static final String CODE_RESET = CMD_W+ADDRESS_ROAD+NUMBER_R+DATA_RESET;//复位
@@ -87,6 +97,22 @@ public class BleCmdUtil {
      */
     public static String getReadHeightCmd(){
        return addToCompleteStr(HexUtils.generateCheckCode(CODE_GET_HEIGHT));
+    }
+
+
+    /**
+     * @return 获取基础高度的发送指令
+     */
+    public static String getMinHeightCmd(){
+        return addToCompleteStr(HexUtils.generateCheckCode(CODE_GET_MIN_HEIGHT));
+    }
+
+
+    /**
+     * @return 获取最大行程的发送指令
+     */
+    public static String getMaxRangeCmd(){
+        return addToCompleteStr(HexUtils.generateCheckCode(CODE_GET_MAX_RANGE));
     }
 
     /**

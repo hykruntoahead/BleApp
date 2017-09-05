@@ -40,11 +40,13 @@ public class DataRoadActivity extends FragmentActivity {
     private ListView mRecLv;
     private EditText mSendEt,mSetHeightEt;
     private Button mSendBtn;
-    private TextView mGetHeightTv;
+    private TextView mGetHeightTv,mMinMaxTv;
     private List<String> mList;
     private ArrayAdapter<String> mArrAdapter;
     private RadioGroup mRadioGroup;
     private MaterialDialog md;
+    private boolean isGetMin,isGetMax;
+    private int minHeight;
 
 
     private Handler handler = new Handler();
@@ -73,6 +75,8 @@ public class DataRoadActivity extends FragmentActivity {
         mRadioGroup = (RadioGroup) findViewById(R.id.rg);
         mSetHeightEt = (EditText) findViewById(R.id.et_set_height);
         mGetHeightTv = (TextView) findViewById(R.id.tv_set_height);
+        mMinMaxTv = (TextView) findViewById(R.id.tv_max_min);
+
         mList = new ArrayList<>();
         mArrAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,mList);
         mRecLv.setAdapter(mArrAdapter);
@@ -124,9 +128,14 @@ public class DataRoadActivity extends FragmentActivity {
     }
 
 
+
+
+
     @Override
     protected void onStart() {
         super.onStart();
+        isGetMin = true;
+        writeCmdTo(BleCmdUtil.getMinHeightCmd());
     }
 
     private void writeHeightTo(int height){
@@ -191,7 +200,16 @@ public class DataRoadActivity extends FragmentActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            mGetHeightTv.setText(heightOrState+"CM");
+                            if(isGetMin){
+                                minHeight = heightOrState;
+                                isGetMin = false;
+                                isGetMax = true;
+                                writeCmdTo(BleCmdUtil.getMaxRangeCmd());
+                            }else if(isGetMax){
+                                mMinMaxTv.setText("最低:"+minHeight+";最高:"+(minHeight+heightOrState));
+                            }else {
+                                mGetHeightTv.setText(heightOrState + "CM");
+                            }
                         }
                     });
                 }

@@ -87,6 +87,7 @@
         android:layout_below="@+id/lv_rev"
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
+
         android:textSize="28sp"
         android:layout_alignParentEnd="true"/>
 
@@ -102,7 +103,19 @@
         android:layout_height="wrap_content"
         android:text="发送（测报警）"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
+       android:layout_alignParentEnd="true"
         android:layout_marginEnd="16dp"
         android:padding="10dp"/>
+
+
+    <TextView
+        android:id="@+id/tv_max_min"
+        android:textSize="24sp"
+        android:layout_below="@+id/tv_set_height"
+        android:layout_margin="16dp"
+        android:layout_alignParentEnd="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
 </RelativeLayout>
