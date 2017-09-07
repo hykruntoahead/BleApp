@@ -170,7 +170,7 @@ public class BleCmdUtil {
      * @return 指定高度cmd
      */
     public static String getSetHeightCmd(int height) {
-        return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_SET_HEIGHT + HexUtils.toHexData(height * 10)));
+        return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_SET_HEIGHT + HexUtils.toHexData(height * 100)));
     }
 
 
@@ -178,6 +178,6 @@ public class BleCmdUtil {
         String height = recStr.substring(4, recStr.length() - 6);
         String hex = HexUtils.hexToAscii(height);
         Log.d("Ble-", "return-" + Integer.parseInt(hex, 16));
-        return Integer.parseInt(hex, 16) / 10;
+        return Integer.parseInt(hex, 16) / 100;
     }
 }
