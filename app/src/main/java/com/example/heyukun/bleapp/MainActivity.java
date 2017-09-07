@@ -51,14 +51,16 @@ public class MainActivity extends AppCompatActivity {
         openScanDevice();
         //android 6.0 + 需要打开GPS定位才可进行蓝牙搜索及后续操作
         initLoc();
-        if(!isLocationEnable(this)){
+        if (!isLocationEnable(this)) {
             setLocationService();
         }
     }
+
     private void setLocationService() {
         Intent locationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         this.startActivityForResult(locationIntent, REQUEST_CODE_LOCATION_SETTINGS);
     }
+
     private void initLoc() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {//如果 API level 是大于等于 23(Android 6.0) 时
             //判断是否具有权限
@@ -67,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
                 //判断是否需要向用户解释为什么需要申请该权限
                 if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                         Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                    Toast.makeText(getApplicationContext(),"自Android 6.0开始需要打开位置权限才可以搜索到Ble设备",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "自Android 6.0开始需要打开位置权限才可以搜索到Ble设备", Toast.LENGTH_SHORT).show();
                 }
                 //请求权限
                 ActivityCompat.requestPermissions(this,
@@ -111,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
     private void initWidgets() {
         mListView = (ListView) findViewById(R.id.lv);
         mScanresults = new ArrayList<>();
-        mScanAdapter = new ScanAdapter(this,mScanresults);
+        mScanAdapter = new ScanAdapter(this, mScanresults);
         mListView.setAdapter(mScanAdapter);
 
         findViewById(R.id.btn_search).setOnClickListener(new View.OnClickListener() {
@@ -122,13 +124,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
                 mMaterialDialog = new MaterialDialog(MainActivity.this)
                         .setTitle("提示")
-                        .setMessage("确定连接："+mScanresults.get(position).getDevice().getName())
+                        .setMessage("确定连接：" + mScanresults.get(position).getDevice().getName())
                         .setPositiveButton("确定", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -149,32 +150,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void connect(final ScanResult scanResult){
+    private void connect(final ScanResult scanResult) {
         MyBleManager.get().connectBle(scanResult, new ConnectCallBack() {
             @Override
             public void onConnecting(BluetoothGatt gatt, int status) {
-                Log.d(TAG,"onConnecting");
+                Log.d(TAG, "onConnecting");
             }
 
             @Override
             public void onConnectError(BleException exception) {
-                Log.d(TAG,"onConnectError`-"+exception.getDescription());
+                Log.d(TAG, "onConnectError`-" + exception.getDescription());
             }
 
             @Override
             public void onConnectSuccess(BluetoothGatt gatt, int status) {
-                Log.d(TAG,"onConnectSuccess`");
+                Log.d(TAG, "onConnectSuccess`");
             }
 
             @Override
             public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                Log.d(TAG,"onServicesDiscovered`");
-                startActivity(new Intent(MainActivity.this,DataRoadActivity.class));
+                Log.d(TAG, "onServicesDiscovered`");
+                startActivity(new Intent(MainActivity.this, DataRoadActivity.class));
             }
 
             @Override
             public void onDisConnected(BluetoothGatt gatt, int status, BleException exception) {
-                Log.d(TAG,"onDisConnected`"+exception.getDescription());
+                Log.d(TAG, "onDisConnected`" + exception.getDescription());
 //                connectCount--;
 //                if(connectCount > 0){
 //                    connect(scanResult);
@@ -185,8 +186,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     //扫面蓝牙设备
-    private void scanDevice(){
-        if(mScanresults !=null && mScanresults.size()>0){
+    private void scanDevice() {
+        if (mScanresults != null && mScanresults.size() > 0) {
             mScanresults.clear();
         }
 
@@ -198,11 +199,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onScanComplete(ScanResult[] results) {
-                if(mScanresults == null){
+                if (mScanresults == null) {
                     return;
                 }
-                for(ScanResult sc : results){
-                    if(!mScanresults.contains(sc)){
+                for (ScanResult sc : results) {
+                    if (!mScanresults.contains(sc)) {
                         mScanresults.add(sc);
                     }
                 }
@@ -228,10 +229,10 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_CODE_LOCATION_SETTINGS) {
             if (isLocationEnable(this)) {
                 //定位已打开的处理
-                Toast.makeText(getApplicationContext(),"定位已打开",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "定位已打开", Toast.LENGTH_SHORT).show();
             } else {
                 //定位依然没有打开的处理
-                Toast.makeText(getApplicationContext(),"定位没有打开",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "定位没有打开", Toast.LENGTH_SHORT).show();
             }
         } else super.onActivityResult(requestCode, resultCode, data);
     }

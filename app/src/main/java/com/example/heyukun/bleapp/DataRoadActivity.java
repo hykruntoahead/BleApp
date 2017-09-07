@@ -38,14 +38,14 @@ import static com.example.heyukun.bleapp.ble.MyBleManager.REV_SUCCESS_FLAG;
 public class DataRoadActivity extends FragmentActivity {
 
     private ListView mRecLv;
-    private EditText mSendEt,mSetHeightEt;
+    private EditText mSendEt, mSetHeightEt;
     private Button mSendBtn;
-    private TextView mGetHeightTv,mMinMaxTv;
+    private TextView mGetHeightTv, mMinMaxTv;
     private List<String> mList;
     private ArrayAdapter<String> mArrAdapter;
     private RadioGroup mRadioGroup;
     private MaterialDialog md;
-    private boolean isGetMin,isGetMax;
+    private boolean isGetMin, isGetMax;
     private int minHeight;
 
 
@@ -57,15 +57,14 @@ public class DataRoadActivity extends FragmentActivity {
 //            handler.postDelayed(this,1000);
         }
     };
-//
+
+    //
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_data_road);
         initWidgets();
     }
-
-
 
 
     private void initWidgets() {
@@ -78,7 +77,7 @@ public class DataRoadActivity extends FragmentActivity {
         mMinMaxTv = (TextView) findViewById(R.id.tv_max_min);
 
         mList = new ArrayList<>();
-        mArrAdapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1,mList);
+        mArrAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, mList);
         mRecLv.setAdapter(mArrAdapter);
         mSendBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,7 +88,7 @@ public class DataRoadActivity extends FragmentActivity {
         mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, @IdRes int checkedId) {
-                switch (checkedId){
+                switch (checkedId) {
                     case R.id.rb_1:
                         writeCmdTo(BleCmdUtil.getReadHeightCmd());
                         break;
@@ -128,9 +127,6 @@ public class DataRoadActivity extends FragmentActivity {
     }
 
 
-
-
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -138,14 +134,14 @@ public class DataRoadActivity extends FragmentActivity {
         writeCmdTo(BleCmdUtil.getMinHeightCmd());
     }
 
-    private void writeHeightTo(int height){
-        mList.add("[Send-]"+height);
+    private void writeHeightTo(int height) {
+        mList.add("[Send-]" + height);
         mArrAdapter.notifyDataSetChanged();
-        mRecLv.smoothScrollToPosition(mList.size()-1);
+        mRecLv.smoothScrollToPosition(mList.size() - 1);
         MyBleManager.get().sendVariableToDevice(height, new SendCallBack() {
             @Override
             public void onSuccess(BluetoothGattCharacteristic characteristic) {
-                mList.add("[Send-Success]-Hex-"+HexUtil.encodeHexStr(characteristic.getValue()));
+                mList.add("[Send-Success]-Hex-" + HexUtil.encodeHexStr(characteristic.getValue()));
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -157,21 +153,21 @@ public class DataRoadActivity extends FragmentActivity {
 
             @Override
             public void onFailure(BleException exception) {
-                mList.add("[Send-Failure]"+exception.getDescription());
+                mList.add("[Send-Failure]" + exception.getDescription());
                 mArrAdapter.notifyDataSetChanged();
             }
         });
     }
 
 
-    private void writeCmdTo(String cmdStr){
-        mList.add("[Send-]"+cmdStr);
+    private void writeCmdTo(String cmdStr) {
+        mList.add("[Send-]" + cmdStr);
         mArrAdapter.notifyDataSetChanged();
-        mRecLv.smoothScrollToPosition(mList.size()-1);
+        mRecLv.smoothScrollToPosition(mList.size() - 1);
         MyBleManager.get().sendFixedToDevice(cmdStr, new SendCallBack() {
             @Override
             public void onSuccess(BluetoothGattCharacteristic characteristic) {
-                mList.add("[Send-Success]-Hex-"+HexUtil.encodeHexStr(characteristic.getValue()));
+                mList.add("[Send-Success]-Hex-" + HexUtil.encodeHexStr(characteristic.getValue()));
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -183,40 +179,42 @@ public class DataRoadActivity extends FragmentActivity {
 
             @Override
             public void onFailure(BleException exception) {
-                mList.add("[Send-Failure]"+exception.getDescription());
+                mList.add("[Send-Failure]" + exception.getDescription());
                 mArrAdapter.notifyDataSetChanged();
             }
         });
     }
 
-    private void notifyData(){
+    private void notifyData() {
         boolean ind = MyBleManager.get().revFromDevice(new RevCallBack() {
             @Override
             public void onCtlSuccess(final int heightOrState) {
-                if(heightOrState == REV_SUCCESS_FLAG){
+                if (heightOrState == REV_SUCCESS_FLAG) {
                     mList.add("[Notify-Success]-操作成功！");
-                }else {
-                    mList.add("[Notify-Success]-OK!-height="+heightOrState);
+                } else {
+                    mList.add("[Notify-Success]-OK!-height=" + heightOrState);
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            if(isGetMin){
+                            if (isGetMin) {
                                 minHeight = heightOrState;
                                 isGetMin = false;
                                 isGetMax = true;
                                 writeCmdTo(BleCmdUtil.getMaxRangeCmd());
-                            }else if(isGetMax){
-                                mMinMaxTv.setText("最低:"+minHeight+";最高:"+(minHeight+heightOrState));
-                            }else {
+                            } else if (isGetMax) {
+                                mMinMaxTv.setText("最低:" + minHeight + ";最高:" + (minHeight + heightOrState));
+                                isGetMax = false;
+                            } else {
                                 mGetHeightTv.setText(heightOrState + "CM");
                             }
+
                         }
                     });
                 }
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(getApplicationContext(),"操作成功",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "操作成功", Toast.LENGTH_SHORT).show();
                         mArrAdapter.notifyDataSetChanged();
                     }
                 });
@@ -224,7 +222,7 @@ public class DataRoadActivity extends FragmentActivity {
 
             @Override
             public void onCtlFailure(String errorValue) {
-                mList.add("[Notify-onCtlFailure]"+errorValue);
+                mList.add("[Notify-onCtlFailure]" + errorValue);
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -238,9 +236,9 @@ public class DataRoadActivity extends FragmentActivity {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                       md =  new MaterialDialog(DataRoadActivity.this)
+                        md = new MaterialDialog(DataRoadActivity.this)
                                 .setTitle(warn.getName())
-                                .setMessage("提示："+warn.getPrompt()+"\r\n\r\n解决："+warn.getSolution())
+                                .setMessage("提示：" + warn.getPrompt() + "\r\n\r\n解决：" + warn.getSolution())
                                 .setPositiveButton("确定", new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
@@ -255,7 +253,7 @@ public class DataRoadActivity extends FragmentActivity {
 
             @Override
             public void onFailure(BleException exception) {
-                mList.add("[Notify-Failure]"+exception.getDescription());
+                mList.add("[Notify-Failure]" + exception.getDescription());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -264,14 +262,14 @@ public class DataRoadActivity extends FragmentActivity {
                 });
             }
         });
-        Log.d("Ble-","notify-"+ind);
+        Log.d("Ble-", "notify-" + ind);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if(md!=null){
-             md.dismiss();
+        if (md != null) {
+            md.dismiss();
         }
     }
 

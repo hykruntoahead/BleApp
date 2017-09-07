@@ -19,7 +19,7 @@ public class BleCmdUtil {
      */
     private static final String CMD_R = "PR";//读 2个ascii字符
     private static final String CMD_W = "PW";//写
-    private static final String CMD_RUN= "CW";//运动控制
+    private static final String CMD_RUN = "CW";//运动控制
 
     /**
      * 寄存器地址
@@ -29,7 +29,7 @@ public class BleCmdUtil {
 
     private static final String MIN_HEIGHT = "0022";//基础高度
 
-    private static final String MAX_RANGE= "0023";//最大行程
+    private static final String MAX_RANGE = "0023";//最大行程
 
 
     private static final String ADDRESS_RUN = "2010"; //运动控制
@@ -64,46 +64,45 @@ public class BleCmdUtil {
     /**
      * 非校验码功能字段
      */
-    private static final String CODE_GET_HEIGHT = CMD_R+ADDRESS_HEIGHT+NUMBER_R;//获取高度
+    private static final String CODE_GET_HEIGHT = CMD_R + ADDRESS_HEIGHT + NUMBER_R;//获取高度
 
-    private static final String CODE_GET_MIN_HEIGHT = CMD_R+MIN_HEIGHT+NUMBER_R;//获取基础高度
+    private static final String CODE_GET_MIN_HEIGHT = CMD_R + MIN_HEIGHT + NUMBER_R;//获取基础高度
 
-    private static final String CODE_GET_MAX_RANGE = CMD_R+MAX_RANGE+NUMBER_R;//获取最大行程
-
-
-    private static final String CODE_AUTO_LEARN = CMD_W+ADDRESS_ROAD+NUMBER_R+DATA_AUTO;//自学习
-    private static final String CODE_RESET = CMD_W+ADDRESS_ROAD+NUMBER_R+DATA_RESET;//复位
+    private static final String CODE_GET_MAX_RANGE = CMD_R + MAX_RANGE + NUMBER_R;//获取最大行程
 
 
-    private static final String CODE_RUN_STOP = CMD_RUN+ADDRESS_RUN+NUMBER_RUN+DATA_STOP;
-
-    private static final String CODE_RUN_UP = CMD_RUN+ADDRESS_RUN+NUMBER_RUN+DATA_UP;
-    private static final String CODE_RUN_UP_CANCEL =CMD_RUN+ADDRESS_RUN+NUMBER_RUN+DATA_UP_CANCEL;
-
-    private static final String CODE_RUN_DOWN = CMD_RUN+ADDRESS_RUN+NUMBER_RUN+DATA_DOWN;
-    private static final String CODE_RUN_DOWN_CANCEL=CMD_RUN+ADDRESS_RUN+NUMBER_RUN+DATA_DOWN_CANCEL;
-
-    private static final String CODE_RUN_SET_HEIGHT=CMD_RUN+ADDRESS_RUN+NUMBER_RUN+DATA_SET_HEIGHT;
+    private static final String CODE_AUTO_LEARN = CMD_W + ADDRESS_ROAD + NUMBER_R + DATA_AUTO;//自学习
+    private static final String CODE_RESET = CMD_W + ADDRESS_ROAD + NUMBER_R + DATA_RESET;//复位
 
 
-    private static String addToCompleteStr(String code){
-        return FRAME_TOP+code+FRAME_END;
+    private static final String CODE_RUN_STOP = CMD_RUN + ADDRESS_RUN + NUMBER_RUN + DATA_STOP;
+
+    private static final String CODE_RUN_UP = CMD_RUN + ADDRESS_RUN + NUMBER_RUN + DATA_UP;
+    private static final String CODE_RUN_UP_CANCEL = CMD_RUN + ADDRESS_RUN + NUMBER_RUN + DATA_UP_CANCEL;
+
+    private static final String CODE_RUN_DOWN = CMD_RUN + ADDRESS_RUN + NUMBER_RUN + DATA_DOWN;
+    private static final String CODE_RUN_DOWN_CANCEL = CMD_RUN + ADDRESS_RUN + NUMBER_RUN + DATA_DOWN_CANCEL;
+
+    private static final String CODE_RUN_SET_HEIGHT = CMD_RUN + ADDRESS_RUN + NUMBER_RUN + DATA_SET_HEIGHT;
+
+
+    private static String addToCompleteStr(String code) {
+        return FRAME_TOP + code + FRAME_END;
     }
-
 
 
     /**
      * @return 获取设备高度的发送指令
      */
-    public static String getReadHeightCmd(){
-       return addToCompleteStr(HexUtils.generateCheckCode(CODE_GET_HEIGHT));
+    public static String getReadHeightCmd() {
+        return addToCompleteStr(HexUtils.generateCheckCode(CODE_GET_HEIGHT));
     }
 
 
     /**
      * @return 获取基础高度的发送指令
      */
-    public static String getMinHeightCmd(){
+    public static String getMinHeightCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_GET_MIN_HEIGHT));
     }
 
@@ -111,84 +110,74 @@ public class BleCmdUtil {
     /**
      * @return 获取最大行程的发送指令
      */
-    public static String getMaxRangeCmd(){
+    public static String getMaxRangeCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_GET_MAX_RANGE));
     }
 
     /**
-     *
      * @return 行程校准--自学习
      */
-    public static String getAutoLearnCmd(){
+    public static String getAutoLearnCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_AUTO_LEARN));
     }
 
     /**
-     *
      * @return 行程校准--复位
      */
-    public static String getResetCmd(){
+    public static String getResetCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_RESET));
     }
 
 
     /**
-     *
      * @return 运动控制--停止
      */
-    public static String getStopCmd(){
+    public static String getStopCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_STOP));
     }
 
     /**
-     *
      * @return 运动控制--上按键按下
      */
-    public static String getUpCmd(){
+    public static String getUpCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_UP));
     }
 
     /**
-     *
      * @return 运动控制--上按键弹起
      */
-    public static String getUpCancelCmd(){
+    public static String getUpCancelCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_UP_CANCEL));
     }
 
     /**
-     *
      * @return 运动控制--下按键按下
      */
-    public static String getDownCmd(){
+    public static String getDownCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_DOWN));
     }
 
     /**
-     *
      * @return 运动控制--下按键弹起
      */
-    public static String getDownCancelCmd(){
+    public static String getDownCancelCmd() {
         return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_DOWN_CANCEL));
     }
 
 
-
-
     /**
-     *
      * @param height 高度值 单位为 0.1mm
      * @return 指定高度cmd
      */
-    public static String getSetHeightCmd(int height){
-        return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_SET_HEIGHT + HexUtils.toHexData(height * 100)));
+    public static String getSetHeightCmd(int height) {
+        return addToCompleteStr(HexUtils.generateCheckCode(CODE_RUN_SET_HEIGHT + HexUtils.toHexData(height * 10)));
     }
 
 
-    public static int getReturnHeight(String recStr){
+    public static int getReturnHeight(String recStr) {
         String height = recStr.substring(4, recStr.length() - 6);
         String hex = HexUtils.hexToAscii(height);
-        Log.d("Ble-","return-"+Integer.parseInt(hex,16));
-        return Integer.parseInt(hex,16)/10;
+        Log.d("Ble-", "return-" + Integer.parseInt(hex, 16));
+        return Integer.parseInt(hex, 16) / 10;
     }
 }
