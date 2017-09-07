@@ -18,8 +18,6 @@ import com.example.heyukun.bleapp.ble.callback.ScanCallBack;
 import com.example.heyukun.bleapp.ble.callback.SendCallBack;
 import com.example.heyukun.bleapp.ble.e.WarnEntity;
 
-import java.util.Arrays;
-
 /**
  * Created by heyukun on 2017/8/31.
  */
